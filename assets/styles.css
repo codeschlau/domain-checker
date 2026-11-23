@@ -1,0 +1,12 @@
+:root {
+  --dc-primary: #1b4d89;
+  --dc-background: #f4f7fb;
+  --dc-text: #172033;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--dc-text);
+  background: var(--dc-background);
+}
+
