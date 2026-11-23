@@ -79,6 +79,16 @@ $(function () {
     ).then((response) => ({ response, type }));
   }
 
+  function fetchRdap(domain) {
+    return Promise.resolve(
+      $.ajax({
+        url: `https://rdap.org/domain/${encodeURIComponent(domain)}`,
+        dataType: "json",
+        timeout: 10000,
+      }),
+    );
+  }
+
   function loadState() {
     try {
       const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY));
@@ -133,6 +143,33 @@ $(function () {
     return String(value).replace(/\.$/, "");
   }
 
+  function formatDate(value) {
+    if (!value) {
+      return "Nicht verfügbar";
+    }
+
+    return new Intl.DateTimeFormat("de-CH", { dateStyle: "medium" }).format(new Date(value));
+  }
+
+  function findRdapEvent(response, eventAction) {
+    return response.events?.find((event) => event.eventAction === eventAction)?.eventDate;
+  }
+
+  function findRegistrarName(response) {
+    const registrar = response.entities?.find((entity) => entity.roles?.includes("registrar"));
+    const vcardEntries = registrar?.vcardArray?.[1] || [];
+
+    // Der Anzeigename befindet sich im fn-Eintrag der RDAP-vCard.
+    return vcardEntries.find((entry) => entry[0] === "fn")?.[3] || "Nicht verfügbar";
+  }
+
+  function renderRdapData(response) {
+    $("#rdap-registrar").text(findRegistrarName(response));
+    $("#rdap-domain-status").text(response.status?.join(", ") || "Nicht verfügbar");
+    $("#rdap-registration-date").text(formatDate(findRdapEvent(response, "registration")));
+    $("#rdap-expiration-date").text(formatDate(findRdapEvent(response, "expiration")));
+  }
+
   function renderDnsRecords(settledRequests) {
     const $tableBody = $("#dns-results").empty();
     let recordCount = 0;
@@ -158,9 +195,10 @@ $(function () {
     return recordCount;
   }
 
-  function showResults(domain, settledRequests) {
+  function showResults(domain, settledRequests, rdapRequest) {
     const failedRequests = settledRequests.filter((request) => request.status === "rejected");
     const recordCount = renderDnsRecords(settledRequests);
+    const warnings = [];
 
     if (failedRequests.length === settledRequests.length) {
       throw new Error("Die Google DNS API ist momentan nicht erreichbar. Bitte versuche es später erneut.");
@@ -184,12 +222,24 @@ $(function () {
         .removeClass("text-bg-success-subtle text-success-emphasis")
         .addClass("text-bg-warning-subtle text-warning-emphasis")
         .text("Teilweise geladen");
-      showMessage("Einige DNS-Eintragstypen konnten nicht geladen werden.", "warning");
+      warnings.push("Einige DNS-Eintragstypen konnten nicht geladen werden.");
     } else {
       $("#dns-status")
         .removeClass("text-bg-warning-subtle text-warning-emphasis")
         .addClass("text-bg-success-subtle text-success-emphasis")
         .text("Erreichbar");
+    }
+
+    if (rdapRequest.status === "fulfilled") {
+      renderRdapData(rdapRequest.value);
+      $("#rdap-card").removeClass("d-none");
+    } else {
+      $("#rdap-card").addClass("d-none");
+      warnings.push("Die Registrierungsdaten sind momentan nicht verfügbar.");
+    }
+
+    if (warnings.length > 0) {
+      showMessage(warnings.join(" "), "warning");
     }
 
     // fadeIn visualisiert, dass neue Daten im DOM eingesetzt wurden.
@@ -218,8 +268,11 @@ $(function () {
     setLoading(true);
 
     try {
-      const dnsRequests = await fetchDnsRecords(domain);
-      showResults(domain, dnsRequests);
+      const [dnsRequests, [rdapRequest]] = await Promise.all([
+        fetchDnsRecords(domain),
+        Promise.allSettled([fetchRdap(domain)]),
+      ]);
+      showResults(domain, dnsRequests, rdapRequest);
     } catch (error) {
       showMessage(error.message);
     } finally {

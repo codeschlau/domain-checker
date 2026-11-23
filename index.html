@@ -22,8 +22,8 @@
       <section class="mb-4">
         <h1 class="h2 mb-2">Domain überprüfen</h1>
         <p class="text-body-secondary mb-0">
-          Gib eine Domain ein. Aktuell werden die DNS-Einträge A, AAAA, MX, NS und TXT
-          über die Google DNS API abgefragt.
+          Gib eine Domain ein. Die Anwendung prüft DNS-Einträge und öffentliche
+          Registrierungsdaten.
         </p>
       </section>
 
@@ -60,7 +60,7 @@
           <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
             <span class="visually-hidden">Daten werden geladen</span>
           </div>
-          <span class="text-body-secondary">DNS-Einträge werden geladen …</span>
+          <span class="text-body-secondary">Domaindaten werden geladen …</span>
         </div>
 
         <div class="d-none" id="results">
@@ -96,6 +96,29 @@
             <div class="card-footer bg-white text-body-secondary small">
               Quelle: Google Public DNS
             </div>
+          </article>
+
+          <article class="card mt-3" id="rdap-card">
+            <div class="card-header bg-body-tertiary d-flex justify-content-between align-items-center">
+              <h3 class="h6 mb-0">Registrierung</h3>
+              <span class="badge text-bg-success-subtle text-success-emphasis">RDAP</span>
+            </div>
+            <div class="card-body">
+              <dl class="row mb-0">
+                <dt class="col-sm-4 col-lg-3">Registrar</dt>
+                <dd class="col-sm-8 col-lg-9" id="rdap-registrar">–</dd>
+
+                <dt class="col-sm-4 col-lg-3">Status</dt>
+                <dd class="col-sm-8 col-lg-9" id="rdap-domain-status">–</dd>
+
+                <dt class="col-sm-4 col-lg-3">Registriert am</dt>
+                <dd class="col-sm-8 col-lg-9" id="rdap-registration-date">–</dd>
+
+                <dt class="col-sm-4 col-lg-3">Läuft ab am</dt>
+                <dd class="col-sm-8 col-lg-9 mb-0" id="rdap-expiration-date">–</dd>
+              </dl>
+            </div>
+            <div class="card-footer bg-white text-body-secondary small">Quelle: RDAP.org</div>
           </article>
         </div>
 
