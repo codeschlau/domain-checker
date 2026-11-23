@@ -2,6 +2,7 @@ $(function () {
   "use strict";
 
   const DNS_TYPES = ["A", "AAAA", "MX", "NS", "TXT"];
+  const STORAGE_KEY = "domainCheckerState";
   const $form = $("#domain-form");
   const $domainInput = $("#domain-input");
   const $checkButton = $("#check-button");
@@ -78,6 +79,51 @@ $(function () {
     ).then((response) => ({ response, type }));
   }
 
+  function loadState() {
+    try {
+      const savedState = JSON.parse(localStorage.getItem(STORAGE_KEY));
+
+      return {
+        lastDomain: savedState?.lastDomain || "",
+        recentDomains: Array.isArray(savedState?.recentDomains) ? savedState.recentDomains : [],
+      };
+    } catch (error) {
+      return { lastDomain: "", recentDomains: [] };
+    }
+  }
+
+  function renderRecentSearches(state) {
+    const $recentSearches = $("#recent-searches").empty();
+    const hasRecentSearches = state.recentDomains.length > 0;
+
+    $("#recent-searches-section").toggleClass("d-none", !hasRecentSearches);
+
+    state.recentDomains.forEach((domain) => {
+      $("<button>")
+        .attr("type", "button")
+        .addClass("btn btn-sm btn-outline-primary recent-search-button")
+        .data("domain", domain)
+        .text(domain)
+        .appendTo($recentSearches);
+    });
+  }
+
+  function saveSearch(domain) {
+    const currentState = loadState();
+    const recentDomains = [
+      domain,
+      ...currentState.recentDomains.filter((savedDomain) => savedDomain !== domain),
+    ].slice(0, 5);
+    const nextState = { lastDomain: domain, recentDomains };
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+      renderRecentSearches(nextState);
+    } catch (error) {
+      // Die Abfrage funktioniert auch, wenn WebStorage im Browser deaktiviert ist.
+    }
+  }
+
   async function fetchDnsRecords(domain) {
     const requests = DNS_TYPES.map((type) => fetchDnsRecord(domain, type));
     return Promise.allSettled(requests);
@@ -124,6 +170,7 @@ $(function () {
       throw new Error("Für diese Domain wurden keine DNS-Einträge gefunden.");
     }
 
+    saveSearch(domain);
     $("#result-domain").text(domain);
     $("#result-timestamp").text(
       `Geprüft am ${new Intl.DateTimeFormat("de-CH", {
@@ -177,4 +224,22 @@ $(function () {
       setLoading(false);
     }
   });
+
+  $("#recent-searches").on("click", ".recent-search-button", function () {
+    $domainInput.val($(this).data("domain"));
+    $form.trigger("submit");
+  });
+
+  $("#clear-history-button").on("click", function () {
+    localStorage.removeItem(STORAGE_KEY);
+    renderRecentSearches({ lastDomain: "", recentDomains: [] });
+  });
+
+  const initialState = loadState();
+  renderRecentSearches(initialState);
+
+  if (initialState.lastDomain) {
+    $domainInput.val(initialState.lastDomain);
+    $form.trigger("submit");
+  }
 });
