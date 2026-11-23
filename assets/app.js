@@ -207,6 +207,8 @@ $(function () {
     const domain = normalizeDomain($domainInput.val());
 
     if (!isValidDomain(domain)) {
+      $results.addClass("d-none");
+      hideMessage();
       $domainInput.addClass("is-invalid").trigger("focus");
       $("#domain-feedback").addClass("d-block");
       return;
