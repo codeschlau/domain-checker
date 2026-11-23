@@ -2,11 +2,91 @@
   --dc-primary: #1b4d89;
   --dc-background: #f4f7fb;
   --dc-text: #172033;
+  --dc-border: #dce4ee;
 }
 
 body {
   min-height: 100vh;
   color: var(--dc-text);
   background: var(--dc-background);
+}
+
+.py-lg-6 {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+
+.hero-section {
+  background-color: #f8fafd;
+  background-image: linear-gradient(#e8eef6 1px, transparent 1px),
+    linear-gradient(90deg, #e8eef6 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.eyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.search-panel,
+.result-card {
+  border-top: 4px solid var(--dc-primary) !important;
+}
+
+.search-panel .input-group-text {
+  color: #637083;
+  border-color: var(--dc-border);
+}
+
+.search-panel .form-control {
+  border-color: var(--dc-border);
+}
+
+.search-panel .form-control:focus {
+  border-color: var(--dc-primary);
+  box-shadow: 0 0 0 0.25rem rgb(27 77 137 / 15%);
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--dc-primary);
+  --bs-btn-border-color: var(--dc-primary);
+  --bs-btn-hover-bg: #153e6f;
+  --bs-btn-hover-border-color: #153e6f;
+}
+
+.result-card .table th {
+  color: #687489;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.result-card .table td {
+  padding-top: 0.9rem;
+  padding-bottom: 0.9rem;
+}
+
+.dns-value {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9rem;
+}
+
+@media (width <= 575.98px) {
+  .py-lg-6 {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .search-panel .input-group-text {
+    display: none;
+  }
+
+  .search-panel .btn {
+    padding-right: 1rem !important;
+    padding-left: 1rem !important;
+  }
 }
 

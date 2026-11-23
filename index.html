@@ -11,7 +11,138 @@
     <link rel="stylesheet" href="assets/styles.css">
   </head>
   <body>
-    <main id="app"></main>
+    <header class="border-bottom bg-white">
+      <nav class="container navbar py-3" aria-label="Hauptnavigation">
+        <a class="navbar-brand fw-semibold text-primary-emphasis" href="index.html">
+          Domain Checker
+        </a>
+        <span class="badge rounded-pill text-bg-light border fw-medium">INB 23-27 A</span>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero-section border-bottom">
+        <div class="container py-5 py-lg-6">
+          <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+              <p class="eyebrow text-primary fw-semibold mb-3">Technische Domainanalyse</p>
+              <h1 class="display-4 fw-bold mb-3">Was steckt hinter einer Domain?</h1>
+              <p class="lead text-body-secondary mb-4">
+                DNS-Einträge, Registrierungsdaten und Hosting-Informationen übersichtlich
+                an einem Ort prüfen.
+              </p>
+              <div class="d-flex flex-wrap gap-2" role="group" aria-label="Prüfbereiche">
+                <span class="badge text-bg-primary-subtle text-primary-emphasis px-3 py-2">DNS</span>
+                <span class="badge text-bg-primary-subtle text-primary-emphasis px-3 py-2">RDAP</span>
+                <span class="badge text-bg-primary-subtle text-primary-emphasis px-3 py-2">IP &amp; Netzwerk</span>
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="search-panel card border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                  <h2 class="h4 mb-2">Domain prüfen</h2>
+                  <p class="text-body-secondary mb-4">
+                    Gib eine Domain ohne Pfad ein, zum Beispiel <strong>example.com</strong>.
+                  </p>
+                  <form id="domain-form" novalidate>
+                    <label class="form-label fw-semibold" for="domain-input">Domain</label>
+                    <div class="input-group input-group-lg">
+                      <span class="input-group-text bg-body-tertiary">https://</span>
+                      <input
+                        class="form-control"
+                        id="domain-input"
+                        name="domain"
+                        type="text"
+                        inputmode="url"
+                        autocomplete="off"
+                        placeholder="example.com"
+                        aria-describedby="domain-feedback"
+                        required
+                      >
+                      <button class="btn btn-primary px-4" id="check-button" type="submit">
+                        Prüfen
+                      </button>
+                    </div>
+                    <div class="invalid-feedback" id="domain-feedback">
+                      Bitte gib eine gültige Domain ein.
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="container py-5" aria-live="polite">
+        <div class="alert alert-danger d-none" id="error-message" role="alert"></div>
+
+        <div class="loading-state d-none text-center py-5" id="loading-state">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Daten werden geladen</span>
+          </div>
+          <p class="text-body-secondary mb-0">Domaindaten werden abgefragt …</p>
+        </div>
+
+        <div class="d-none" id="results">
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+            <div>
+              <p class="eyebrow text-primary fw-semibold mb-2">Analyse abgeschlossen</p>
+              <h2 class="h1 mb-0" id="result-domain">Domain</h2>
+            </div>
+            <p class="small text-body-secondary mb-0" id="result-timestamp"></p>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-12">
+              <article class="card result-card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 p-4 pb-0">
+                  <div class="d-flex justify-content-between align-items-start gap-3">
+                    <div>
+                      <p class="text-primary fw-semibold small text-uppercase mb-1">Google DNS</p>
+                      <h3 class="h4 mb-0">DNS-Einträge</h3>
+                    </div>
+                    <span class="badge text-bg-success-subtle text-success-emphasis">Erreichbar</span>
+                  </div>
+                </div>
+                <div class="card-body p-4">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                      <thead>
+                        <tr>
+                          <th scope="col">Typ</th>
+                          <th scope="col">Wert</th>
+                          <th scope="col">TTL</th>
+                        </tr>
+                      </thead>
+                      <tbody id="dns-results"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </div>
+
+        <section class="d-none mt-5" id="recent-searches-section">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h5 mb-0">Zuletzt geprüft</h2>
+            <button class="btn btn-sm btn-outline-secondary" id="clear-history-button" type="button">
+              Verlauf löschen
+            </button>
+          </div>
+          <div class="d-flex flex-wrap gap-2" id="recent-searches"></div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="border-top bg-white py-4">
+      <div class="container d-flex flex-column flex-sm-row justify-content-between gap-2">
+        <span class="text-body-secondary small">Projektarbeit von Laurent Schiltz</span>
+        <span class="text-body-secondary small">INB 23-27 A</span>
+      </div>
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
